@@ -1,6 +1,5 @@
 package pl.kamiljurczyk.clippings.clipping;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
