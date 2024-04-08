@@ -26,7 +26,7 @@ public class ClippingFile {
 
     @OneToMany(
             mappedBy = "clippingFile",
-            cascade = CascadeType.ALL,
+            cascade = CascadeType.PERSIST,
             orphanRemoval = true
     )
     @JsonManagedReference
