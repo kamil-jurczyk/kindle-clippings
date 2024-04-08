@@ -4,5 +4,6 @@
 CREATE TABLE clipping_file
 (
     id        BIGINT AUTO_INCREMENT PRIMARY KEY,
-    file_name VARCHAR(255)
+    file_name VARCHAR(255),
+    user_id   BIGINT NOT NULL
 )

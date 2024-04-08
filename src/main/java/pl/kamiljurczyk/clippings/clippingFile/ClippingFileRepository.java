@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-interface ClippingFileRepository extends JpaRepository<ClippingFile, Long> {
+public interface ClippingFileRepository extends JpaRepository<ClippingFile, Long> {
 
     @Query("select c from ClippingFile c " +
             "left join fetch c.clippingList " +

@@ -1,10 +1,9 @@
 package pl.kamiljurczyk.clippings.clipping;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import pl.kamiljurczyk.clippings.clippingFile.ClippingFile;
 
 import java.time.LocalDateTime;
 
@@ -18,12 +17,14 @@ public class Clipping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long clippingFileId;
     private String bookTitle;
     private String author;
     private String bookPage;
     private String bookLocation;
-    @Column(length = 1000)
     private String highlight;
     private LocalDateTime bookHighlightDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
+    private ClippingFile clippingFile;
 }
