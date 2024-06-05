@@ -10,13 +10,13 @@ import pl.kamiljurczyk.clippings.security.jwt.JwtService;
 @RequestMapping("/clipping")
 @RestController
 @RequiredArgsConstructor
-public class ClippingFileController {
+class ClippingFileController {
 
     private final ClippingFileService clippingFileService;
     private final JwtService jwtService;
 
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Object> uploadFileWithClippings(@RequestParam("file") MultipartFile clipping, @RequestHeader("Authorization") String jwt) {
+    ResponseEntity<Object> uploadFileWithClippings(@RequestParam("file") MultipartFile clipping, @RequestHeader("Authorization") String jwt) {
         clippingFileService.uploadClipping(clipping, jwtService.extractUsernameFromBearerToken(jwt));
 
         return ResponseEntity.accepted().build();
@@ -24,7 +24,7 @@ public class ClippingFileController {
 
     @GetMapping("/{id}")
     @PreAuthorize("@clippingFileService.isAllowedToGetClippings(principal, #id)")
-    public ResponseEntity<ClippingFile> getClippingsByFileId(@PathVariable("id") long id) {
+    ResponseEntity<ClippingFile> getClippingsByFileId(@PathVariable("id") long id) {
         return ResponseEntity.ok(clippingFileService.getClippingsByFileId(id));
     }
 }

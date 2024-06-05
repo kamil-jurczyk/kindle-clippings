@@ -23,14 +23,14 @@ import java.util.regex.Pattern;
 @Slf4j
 class ClippingExtractData {
 
-    public static final String DATE_FORMAT = "MMMM d, yyyy h:mm:ss a";
-    public static final String BOOK_PAGE_OPEN_STRING = "page ";
-    public static final String BOOK_PAGE_CLOSE_STRING = " |";
-    public static final String BOOK_LOCATION_OPEN_STRING = "Location ";
-    public static final String BOOK_LOCATION_CLOSE_STRING = " |";
-    public static final String AUTHOR_OPEN_STRING = "(";
-    public static final String AUTHOR_CLOSE_STRING = ")";
-    public static final String BOOK_TITLE_PATTERN = " \\(.*?\\)";
+    private static final String DATE_FORMAT = "MMMM d, yyyy h:mm:ss a";
+    private static final String BOOK_PAGE_OPEN_STRING = "page ";
+    private static final String BOOK_PAGE_CLOSE_STRING = " |";
+    private static final String BOOK_LOCATION_OPEN_STRING = "Location ";
+    private static final String BOOK_LOCATION_CLOSE_STRING = " |";
+    private static final String AUTHOR_OPEN_STRING = "(";
+    private static final String AUTHOR_CLOSE_STRING = ")";
+    private static final String BOOK_TITLE_PATTERN = " \\(.*?\\)";
 
     List<Clipping> toClippingEntitiesList(List<ArrayList<String>> listOfClippings) {
         return listOfClippings.stream()

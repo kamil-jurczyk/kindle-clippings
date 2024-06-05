@@ -1,5 +1,6 @@
 package pl.kamiljurczyk.clippings.clippingTranslation;
 
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -8,11 +9,15 @@ import pl.kamiljurczyk.clippings.clippingTranslation.dto.ClippingTranslation;
 import pl.kamiljurczyk.clippings.clippingTranslation.dto.TranslationRequestBody;
 import pl.kamiljurczyk.clippings.clippingTranslation.dto.TranslationResponseBody;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ClippingTranslationService {
+
+    private static final String FILENAME = "anki";
+    private static final String FILE_FORMAT = ".txt";
 
     private final RestClient restClient;
 
@@ -22,7 +27,7 @@ public class ClippingTranslationService {
                 .build();
     }
 
-    public List<ClippingTranslation> translateClippings(List<Clipping> clippings, String sourceLanguage, String targetLanguage) {
+    List<ClippingTranslation> translateClippings(List<Clipping> clippings, String sourceLanguage, String targetLanguage) {
 
         ArrayList<ClippingTranslation> clippingTranslations = new ArrayList<>();
 
@@ -54,5 +59,34 @@ public class ClippingTranslationService {
         });
 
         return clippingTranslations;
+    }
+
+    InputStreamResource exportTxtFile(List<ClippingTranslation> clippingTranslations) throws IOException {
+        StringBuilder stringBuilder = appendFileWithClippingTranslations(clippingTranslations);
+
+        File file = File.createTempFile(FILENAME, FILE_FORMAT);
+        FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
+
+        try (BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+            bufferedWriter.write(stringBuilder.toString());
+        }
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        return new InputStreamResource(fileInputStream);
+    }
+
+    private StringBuilder appendFileWithClippingTranslations(List<ClippingTranslation> clippingTranslations) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("""
+                #separator:space
+                #html:false\s
+                """);
+        clippingTranslations.forEach(clippingTranslation ->
+                stringBuilder.append(clippingTranslation.getHighlight())
+                        .append(" ")
+                        .append(clippingTranslation.getTranslation())
+                        .append("\n")
+        );
+        return stringBuilder;
     }
 }

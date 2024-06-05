@@ -18,7 +18,7 @@ class ClippingFileService {
     private final ClippingFileRepository clippingFileRepository;
     private final UserRepository userRepository;
 
-    public void uploadClipping(MultipartFile clipping, String userName) {
+    void uploadClipping(MultipartFile clipping, String userName) {
         List<ArrayList<String>> listOfClippings = ClippingExtractData.extractClippingsFromTxtFile(clipping);
 
         ClippingFile clippingFile = new ClippingFile();
@@ -30,7 +30,7 @@ class ClippingFileService {
         clippingFileRepository.save(clippingFile);
     }
 
-    public ClippingFile getClippingsByFileId(long id) {
+    ClippingFile getClippingsByFileId(long id) {
         return clippingFileRepository.getClippingFileById(id).orElseThrow(ClippingFileNotFoundException::new);
     }
 
