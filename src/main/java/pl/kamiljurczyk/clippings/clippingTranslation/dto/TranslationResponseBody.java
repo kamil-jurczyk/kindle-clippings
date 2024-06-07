@@ -1,10 +1,6 @@
 package pl.kamiljurczyk.clippings.clippingTranslation.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@AllArgsConstructor
-@Getter
-public class TranslationResponseBody {
-    private String translatedText;
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record TranslationResponseBody(String translatedText) {}

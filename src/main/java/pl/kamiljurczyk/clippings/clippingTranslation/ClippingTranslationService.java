@@ -1,7 +1,10 @@
 package pl.kamiljurczyk.clippings.clippingTranslation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import pl.kamiljurczyk.clippings.clipping.Clipping;
@@ -10,6 +13,8 @@ import pl.kamiljurczyk.clippings.clippingTranslation.dto.TranslationRequestBody;
 import pl.kamiljurczyk.clippings.clippingTranslation.dto.TranslationResponseBody;
 
 import java.io.*;
+import java.net.http.HttpClient;
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +24,17 @@ public class ClippingTranslationService {
     private static final String FILENAME = "anki";
     private static final String FILE_FORMAT = ".txt";
 
+    @Value("${translate.url}")
+    private String translateUrl;
+
     private final RestClient restClient;
 
     public ClippingTranslationService() {
+        var client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+        var requestFactory = new JdkClientHttpRequestFactory(client);
         restClient = RestClient.builder()
-                .baseUrl("https://libretranslate.com")
+                .requestFactory(requestFactory)
+                .baseUrl(translateUrl)
                 .build();
     }
 
@@ -36,26 +47,33 @@ public class ClippingTranslationService {
             String highlight = clipping.getHighlight();
 
             TranslationResponseBody translation = restClient.post()
-                    .uri("/translate")
+                    .uri(translateUrl)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(TranslationRequestBody.builder()
                             .q(highlight)
                             .source(sourceLanguage)
                             .target(targetLanguage)
                             .format("text")
+                            .alternatives(3)
                             .apiKey("")
                             .build())
-                    .retrieve()
-                    .body(TranslationResponseBody.class);
+                    .exchange(((request, response) -> {
+                        if (response.getStatusCode().is4xxClientError()) {
+                            throw new InvalidObjectException("Translation body is invalid");
+                        } else if (response.getStatusCode().is5xxServerError()) {
+                            throw new ServerException("Server is unreachable");
+                        } else {
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            return objectMapper.readValue(response.getBody(), TranslationResponseBody.class);
+                        }
+                    }));
 
-            if(translation != null) {
-                clippingTranslations.add(ClippingTranslation.builder()
-                        .highlight(highlight)
-                        .translation(translation.getTranslatedText())
-                        .sourceLanguage(sourceLanguage)
-                        .targetLanguage(targetLanguage)
-                        .build());
-            }
+            clippingTranslations.add(ClippingTranslation.builder()
+                    .highlight(highlight)
+                    .translation(translation.translatedText())
+                    .sourceLanguage(sourceLanguage)
+                    .targetLanguage(targetLanguage)
+                    .build());
         });
 
         return clippingTranslations;
